@@ -1,0 +1,19 @@
+{
+    "name": "arcade-tile-scanner",
+    "version": "0.0.0",
+    "files": [
+        "rules.ts",
+        "outline.ts",
+        "api.ts",
+        "main.ts"
+    ],
+    "supportedTargets": [
+        "arcade"
+    ],
+    "dependencies": {
+        "device": "*"
+    },
+    "testDependencies": {},
+    "testFiles": [
+    ]
+}
