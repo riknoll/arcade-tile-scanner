@@ -12,7 +12,7 @@ namespace tileScanner {
     }
 
     //% blockId=tileScanner_scanInDirection
-    //% block="scan from $origin in direction $direction||max distance $distance while matches $rule in $map"
+    //% block="scan from $origin in direction $direction||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
     //% origin.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
@@ -58,7 +58,7 @@ namespace tileScanner {
     }
 
     //% blockId=tileScanner_bfs
-    //% block="BFS from $origin||max distance $distance while matches $rule in $map"
+    //% block="BFS from $origin||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
     //% origin.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
