@@ -109,23 +109,13 @@ namespace tileScanner {
         updateTiles(tiles: tiles.Location[], scale: number) {
             this.tileScale = scale;
 
-            let minX = 0xffffffff;
-            let maxX = 0;
-            let minY = 0xffffffff;
-            let maxY = 0;
+            const bounds = new LocationGroupBounds(tiles);
 
-            for (const tile of tiles) {
-                minX = Math.min(tile.column, minX);
-                maxX = Math.max(tile.column, maxX);
-                minY = Math.min(tile.row, minY);
-                maxY = Math.max(tile.row, maxY);
-            }
-
-            const out = image.create(maxX - minX + 1, maxY - minY + 1);
+            const out = image.create(bounds.widthInTiles, bounds.heightInTiles);
             const visited = image.create(out.width, out.height);
 
             for (const tile of tiles) {
-                visited.setPixel(tile.column - minX, tile.row - minY, 1);
+                visited.setPixel(tile.column - bounds.minColumn, tile.row - bounds.minRow, 1);
             }
 
             for (let x = 0; x < out.width; x++) {
@@ -152,8 +142,8 @@ namespace tileScanner {
             }
 
             this.outlineData = out;
-            this.minColumn = minX;
-            this.minRow = minY;
+            this.minColumn = bounds.minColumn;
+            this.minRow = bounds.minRow;
 
             this.setDimensions(
                 this.outlineData.width << scale,
@@ -162,6 +152,35 @@ namespace tileScanner {
 
             this.left = this.minColumn << scale;
             this.top = this.minRow << scale;
+        }
+    }
+
+    export class LocationGroupBounds {
+        minColumn: number;
+        minRow: number;
+        maxColumn: number;
+        maxRow: number;
+
+        get widthInTiles() {
+            return this.maxColumn - this.minColumn + 1;
+        }
+
+        get heightInTiles() {
+            return this.maxRow - this.minRow + 1;
+        }
+
+        constructor(tiles: tiles.Location[]) {
+            this.minColumn = 0xffffffff;
+            this.maxColumn = 0;
+            this.minRow = 0xffffffff;
+            this.maxRow = 0;
+
+            for (const tile of tiles) {
+                this.minColumn = Math.min(tile.column, this.minColumn);
+                this.maxColumn = Math.max(tile.column, this.maxColumn);
+                this.minRow = Math.min(tile.row, this.minRow);
+                this.maxRow = Math.max(tile.row, this.maxRow);
+            }
         }
     }
 }

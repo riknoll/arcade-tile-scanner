@@ -11,6 +11,33 @@ namespace tileScanner {
         AdjacentOrDiagonal
     }
 
+    export enum LocationGroupMetric {
+        //% block="min column"
+        MinColumn,
+        //% block="min row"
+        MinRow,
+        //% block="max column"
+        MaxColumn,
+        //% block="max row"
+        MaxRow,
+        //% block="left"
+        Left,
+        //% block="right"
+        Right,
+        //% block="top"
+        Top,
+        //% block="bottom"
+        Bottom,
+        //% block="width in pixels"
+        PixelWidth,
+        //% block="height in pixels"
+        PixelHeight,
+        //% block="width in tiles"
+        TileWidth,
+        //% block="height in tiles"
+        TileHeight
+    }
+
     //% blockId=tileScanner_scanInDirection
     //% block="scan from $origin in direction $direction||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
@@ -283,6 +310,167 @@ namespace tileScanner {
         ].filter(a => !!a);
 
         return new OrRule(args);
+    }
+
+    //% blockId=tileScanner_setTileAtLocations
+    //% block="set $tile at $locations||in $map"
+    //% tile.shadow=tileset_tile_picker
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Operations
+    //% weight=100
+    //% blockGap=8
+    export function setTileAtLocations(locations: tiles.Location[], tile: Image, map?: tiles.TileMapData) {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return;
+
+        const tileset = map.getTileset();
+
+        let tileIndex = tileset.indexOf(tile);
+
+        if (tileIndex === -1) {
+            for (let i = 0; i < tileset.length; i++) {
+                if (tileset[i].equals(tile)) {
+                    tileIndex = i;
+                    break;
+                }
+            }
+
+            if (tileIndex === -1) {
+                tileset.push(tile);
+                tileIndex = tileset.length - 1;
+            }
+        }
+
+        for (const location of locations) {
+            map.setTile(location.column, location.row, tileIndex)
+        }
+    }
+
+    //% blockId=tileScanner_setWallAtLocations
+    //% block="set wall $isWall at $locations||in $map"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Operations
+    //% weight=90
+    export function setWallAtLocations(locations: tiles.Location[], isWall: boolean, map?: tiles.TileMapData) {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return;
+
+        for (const location of locations) {
+            map.setWall(location.column, location.row, isWall);
+        }
+    }
+
+    //% blockId=tileScanner_filterLocations
+    //% block="filter $locations by $rule||in $map"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% rule.shadow=tileScanner_tileIs
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Operations
+    //% weight=80
+    export function filterLocations(locations: tiles.Location[], rule: TileRule, map?: tiles.TileMapData): tiles.Location[] {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return locations;
+
+        return locations.filter(l => rule.acceptsLocation(l.column, l.row, map));
+    }
+
+    //% blockId=tileScanner_overlapsSprite
+    //% block="$sprite overlaps $locations||in $map"
+    //% sprite.shadow=variables_get
+    //% sprite.defl=mySprite
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Operations
+    //% weight=70
+    export function overlapsSprite(locations: tiles.Location[], sprite: Sprite, map?: tiles.TileMapData): boolean {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return false;
+
+        const scale = map.scale;
+
+        for (const location of locations) {
+            if (
+                !(
+                    (location.column << scale) > sprite.right ||
+                    ((location.column + 1) << scale) < sprite.left ||
+                    (location.row << scale) > sprite.bottom ||
+                    ((location.row + 1) << scale) < sprite.top
+                )
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //% blockId=tileScanner_indexOfLocation
+    //% block="$locations index of $toFind"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% toFind.shadow=mapgettile
+    //% group=Operations
+    //% weight=60
+    //% blockGap=8
+    export function indexOfLocation(locations: tiles.Location[], toFind: tiles.Location): number {
+        for (let i = 0; i < locations.length; i++) {
+            if (locations[i].column === toFind.column && locations[i].row === toFind.row) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    //% blockId=tileScanner_containsLocation
+    //% block="$locations contains $toFind"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% toFind.shadow=mapgettile
+    //% group=Operations
+    //% weight=50
+    export function containsLocation(locations: tiles.Location[], toFind: tiles.Location): boolean {
+        return indexOfLocation(locations, toFind) !== -1;
+    }
+
+    //% blockId=tileScanner_calculateMetric
+    //% block="$locations calculate $metric||in $map"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Operations
+    //% weight=40
+    export function calculateMetric(locations: tiles.Location[], metric: LocationGroupMetric, map?: tiles.TileMapData): number {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return -1;
+
+        const scale = map.scale;
+        const bounds = new LocationGroupBounds(locations);
+
+        switch (metric) {
+            case LocationGroupMetric.MinColumn: return bounds.minColumn;
+            case LocationGroupMetric.MinRow: return bounds.minRow;
+            case LocationGroupMetric.MaxColumn: return bounds.maxColumn;
+            case LocationGroupMetric.MaxRow: return bounds.maxRow;
+            case LocationGroupMetric.Left: return bounds.minColumn << scale;
+            case LocationGroupMetric.Right: return (bounds.maxColumn + 1) << scale;
+            case LocationGroupMetric.Top: return bounds.minRow << scale;
+            case LocationGroupMetric.Bottom: return (bounds.maxRow + 1) << scale;
+            case LocationGroupMetric.PixelWidth: return bounds.widthInTiles << scale;
+            case LocationGroupMetric.PixelHeight: return bounds.heightInTiles << scale;
+            case LocationGroupMetric.TileWidth: return bounds.widthInTiles;
+            case LocationGroupMetric.TileHeight: return bounds.heightInTiles;
+        }
     }
 
     //% blockId=tileScanner_createOutlineSprite
