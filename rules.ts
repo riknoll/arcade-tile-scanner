@@ -138,16 +138,16 @@ namespace tileScanner {
         acceptsLocation(col: number, row: number, map: tiles.TileMapData): boolean {
             let sideMatch = 0;
 
-            if (this.arg.acceptsLocation(col, row - 1, map)) {
+            if (!map.isOutsideMap(col, row - 1) && this.arg.acceptsLocation(col, row - 1, map)) {
                 sideMatch |= _TOP;
             }
-            if (this.arg.acceptsLocation(col + 1, row, map)) {
+            if (!map.isOutsideMap(col + 1, row) && this.arg.acceptsLocation(col + 1, row, map)) {
                 sideMatch |= _RIGHT;
             }
-            if (this.arg.acceptsLocation(col, row + 1, map)) {
+            if (!map.isOutsideMap(col, row + 1) && this.arg.acceptsLocation(col, row + 1, map)) {
                 sideMatch |= _BOTTOM;
             }
-            if (this.arg.acceptsLocation(col - 1, row, map)) {
+            if (!map.isOutsideMap(col - 1, row) && this.arg.acceptsLocation(col - 1, row, map)) {
                 sideMatch |= _LEFT;
             }
 
