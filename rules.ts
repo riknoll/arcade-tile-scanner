@@ -90,6 +90,8 @@ namespace tileScanner {
         }
 
         acceptsLocation(col: number, row: number, map: tiles.TileMapData): boolean {
+            if (map.isOutsideMap(col, row)) return false;
+
             const mapTile = map.getTileImage(map.getTile(col, row));
 
             return this.image === mapTile || this.image.equals(mapTile);
@@ -138,16 +140,16 @@ namespace tileScanner {
         acceptsLocation(col: number, row: number, map: tiles.TileMapData): boolean {
             let sideMatch = 0;
 
-            if (!map.isOutsideMap(col, row - 1) && this.arg.acceptsLocation(col, row - 1, map)) {
+            if (this.arg.acceptsLocation(col, row - 1, map)) {
                 sideMatch |= _TOP;
             }
-            if (!map.isOutsideMap(col + 1, row) && this.arg.acceptsLocation(col + 1, row, map)) {
+            if (this.arg.acceptsLocation(col + 1, row, map)) {
                 sideMatch |= _RIGHT;
             }
-            if (!map.isOutsideMap(col, row + 1) && this.arg.acceptsLocation(col, row + 1, map)) {
+            if (this.arg.acceptsLocation(col, row + 1, map)) {
                 sideMatch |= _BOTTOM;
             }
-            if (!map.isOutsideMap(col - 1, row) && this.arg.acceptsLocation(col - 1, row, map)) {
+            if (this.arg.acceptsLocation(col - 1, row, map)) {
                 sideMatch |= _LEFT;
             }
 
