@@ -124,7 +124,7 @@ namespace tileScanner {
 
         acceptsLocation(col: number, row: number, map: tiles.TileMapData): boolean {
             let didPass = false;
-            forEachAdjacentLocation(col, row, this.mode, map, (column, row) => {
+            forEachAdjacentLocation(col, row, this.mode, map, true, (column, row) => {
                 if (this.arg.acceptsLocation(column, row, map)) didPass = true;
             });
 
@@ -212,33 +212,33 @@ namespace tileScanner {
         }
     }
 
-    export function forEachAdjacentLocation(column: number, row: number, mode: BorderMode, map: tiles.TileMapData, cb: (column: number, row: number) => void) {
+    export function forEachAdjacentLocation(column: number, row: number, mode: BorderMode, map: tiles.TileMapData, includeOutsideMap: boolean, cb: (column: number, row: number) => void) {
         if (mode === BorderMode.Adjacent || mode === BorderMode.AdjacentOrDiagonal) {
-            if (column > 0) {
+            if (includeOutsideMap || column > 0) {
                 cb(column - 1, row);
             }
-            if (row > 0) {
+            if (includeOutsideMap || row > 0) {
                 cb(column, row - 1);
             }
-            if (column < map.width - 1) {
+            if (includeOutsideMap || column < map.width - 1) {
                 cb(column + 1, row);
             }
-            if (row < map.height - 1) {
+            if (includeOutsideMap || row < map.height - 1) {
                 cb(column, row + 1)
             }
         }
 
         if (mode === BorderMode.Diagonal || mode === BorderMode.AdjacentOrDiagonal) {
-            if (column > 0 && row > 0) {
+            if (includeOutsideMap || column > 0 && row > 0) {
                 cb(column - 1, row - 1);
             }
-            if (column < map.width - 1 && row > 0) {
+            if (includeOutsideMap || column < map.width - 1 && row > 0) {
                 cb(column + 1, row - 1);
             }
-            if (column > 0 && row < map.height - 1) {
+            if (includeOutsideMap || column > 0 && row < map.height - 1) {
                 cb(column - 1, row + 1);
             }
-            if (column < map.width - 1 && row < map.height - 1) {
+            if (includeOutsideMap || column < map.width - 1 && row < map.height - 1) {
                 cb(column + 1, row + 1);
             }
         }

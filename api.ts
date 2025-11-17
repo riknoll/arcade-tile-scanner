@@ -177,7 +177,7 @@ namespace tileScanner {
 
         const result: tiles.Location[] = [];
 
-        forEachAdjacentLocation(origin.column, origin.row, mode, map, (column, row) => {
+        forEachAdjacentLocation(origin.column, origin.row, mode, map, false, (column, row) => {
             if (!rule || rule.acceptsLocation(column, row, map)) {
                 result.push(new tiles.Location(column, row, game.currentScene().tileMap));
             }
