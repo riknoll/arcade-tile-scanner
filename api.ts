@@ -249,6 +249,7 @@ namespace tileScanner {
     //% blockId=tileScanner_bordersSides
     //% block="location borders $rule only on $sideGroups"
     //% sideGroups.shadow=tileScanner_sideGroups
+    //% rule.shadow=tileScanner_tileIs
     //% group=Rules
     //% weight=45
     export function bordersSides(rule: TileRule, sideGroups: number[]): TileRule {
