@@ -1,8 +1,8 @@
 namespace tileScanner {
-    const TOP = 0b0001;
-    const RIGHT = 0b0010;
-    const BOTTOM = 0b0100;
-    const LEFT = 0b1000;
+    export const _TOP = 0b0001;
+    export const _RIGHT = 0b0010;
+    export const _BOTTOM = 0b0100;
+    export const _LEFT = 0b1000;
 
     export class TileOutlineSprite extends sprites.ExtendableSprite {
         outlineData: Image;
@@ -30,7 +30,7 @@ namespace tileScanner {
                     const oLeft = left + (x << this.tileScale);
                     const oTop = top + (y << this.tileScale)
 
-                    if (current & TOP) {
+                    if (current & _TOP) {
                         screen.fillRect(
                             oLeft,
                             oTop - this.thickness,
@@ -38,7 +38,7 @@ namespace tileScanner {
                             this.thickness,
                             this.color
                         )
-                        if (current & RIGHT) {
+                        if (current & _RIGHT) {
                             screen.fillRect(
                                 oLeft + tileWidth,
                                 oTop - this.thickness,
@@ -47,7 +47,7 @@ namespace tileScanner {
                                 this.color
                             )
                         }
-                        if (current & LEFT) {
+                        if (current & _LEFT) {
                             screen.fillRect(
                                 oLeft - this.thickness,
                                 oTop - this.thickness,
@@ -57,7 +57,7 @@ namespace tileScanner {
                             )
                         }
                     }
-                    if (current & RIGHT) {
+                    if (current & _RIGHT) {
                         screen.fillRect(
                             oLeft + tileWidth,
                             oTop,
@@ -66,7 +66,7 @@ namespace tileScanner {
                             this.color
                         )
                     }
-                    if (current & BOTTOM) {
+                    if (current & _BOTTOM) {
                         screen.fillRect(
                             oLeft,
                             oTop + tileWidth,
@@ -74,7 +74,7 @@ namespace tileScanner {
                             this.thickness,
                             this.color
                         )
-                        if (current & RIGHT) {
+                        if (current & _RIGHT) {
                             screen.fillRect(
                                 oLeft + tileWidth,
                                 oTop + tileWidth,
@@ -83,7 +83,7 @@ namespace tileScanner {
                                 this.color
                             )
                         }
-                        if (current & LEFT) {
+                        if (current & _LEFT) {
                             screen.fillRect(
                                 oLeft - this.thickness,
                                 oTop + tileWidth,
@@ -93,7 +93,7 @@ namespace tileScanner {
                             )
                         }
                     }
-                    if (current & LEFT) {
+                    if (current & _LEFT) {
                         screen.fillRect(
                             oLeft - this.thickness,
                             oTop,
@@ -124,16 +124,16 @@ namespace tileScanner {
                         let data = 0;
 
                         if (y === 0 || !visited.getPixel(x, y - 1)) {
-                            data |= TOP;
+                            data |= _TOP;
                         }
                         if (x === out.width - 1 || !visited.getPixel(x + 1, y)) {
-                            data |= RIGHT;
+                            data |= _RIGHT;
                         }
                         if (y === out.height - 1 || !visited.getPixel(x, y + 1)) {
-                            data |= BOTTOM;
+                            data |= _BOTTOM;
                         }
                         if (x === 0 || !visited.getPixel(x - 1, y)) {
-                            data |= LEFT;
+                            data |= _LEFT;
                         }
 
                         out.setPixel(x, y, data);

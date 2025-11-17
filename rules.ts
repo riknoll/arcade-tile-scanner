@@ -130,6 +130,31 @@ namespace tileScanner {
         }
     }
 
+    export class BordersSidesRule extends TileRule {
+        constructor(protected arg: TileRule, protected sideGroups: number[]) {
+            super();
+        }
+
+        acceptsLocation(col: number, row: number, map: tiles.TileMapData): boolean {
+            let sideMatch = 0;
+
+            if (this.arg.acceptsLocation(col, row - 1, map)) {
+                sideMatch |= _TOP;
+            }
+            if (this.arg.acceptsLocation(col + 1, row, map)) {
+                sideMatch |= _RIGHT;
+            }
+            if (this.arg.acceptsLocation(col, row + 1, map)) {
+                sideMatch |= _BOTTOM;
+            }
+            if (this.arg.acceptsLocation(col - 1, row, map)) {
+                sideMatch |= _LEFT;
+            }
+
+            return this.sideGroups.indexOf(sideMatch) !== -1;
+        }
+    }
+
     export class IsInMapRule extends TileRule {
         constructor() {
             super();
@@ -215,5 +240,43 @@ namespace tileScanner {
                 cb(column + 1, row + 1);
             }
         }
+    }
+
+    export function _getSideGroups(
+        sides: CollisionDirection[],
+        ops: LogicOp[]
+    ) {
+        let current = 0;
+        let result: number[] = [];
+
+        for (let i = 0; i < sides.length; i++) {
+            const side = sides[i];
+
+            if (side === CollisionDirection.Top) {
+                current |= _TOP;
+            }
+            else if (side === CollisionDirection.Right) {
+                current |= _RIGHT;
+            }
+            else if (side === CollisionDirection.Bottom) {
+                current |= _BOTTOM;
+            }
+            else {
+                current |= _LEFT;
+            }
+
+            if (ops.length > i) {
+                if (ops[i] === LogicOp.Or) {
+                    result.push(current);
+                    current = 0;
+                }
+            }
+        }
+
+        if (current) {
+            result.push(current);
+        }
+
+        return result;
     }
 }

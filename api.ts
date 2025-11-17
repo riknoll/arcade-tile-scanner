@@ -38,6 +38,13 @@ namespace tileScanner {
         TileHeight
     }
 
+    export enum LogicOp {
+        //% block="and"
+        And,
+        //% block="or"
+        Or
+    }
+
     //% blockId=tileScanner_scanInDirection
     //% block="scan from $origin in direction $direction||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
@@ -226,7 +233,7 @@ namespace tileScanner {
     //% block="location $property $op $value"
     //% group=Rules
     //% weight=70
-    export function comparison(property: TileProperty, op: ComparisonOp, value: number) {
+    export function comparison(property: TileProperty, op: ComparisonOp, value: number): TileRule {
         return new PropertyComparisonRule(op, property, value);
     }
 
@@ -235,8 +242,98 @@ namespace tileScanner {
     //% rule.shadow=tileScanner_tileIs
     //% group=Rules
     //% weight=50
-    export function borders(rule: TileRule, mode?: BorderMode) {
+    export function borders(rule: TileRule, mode?: BorderMode): TileRule {
         return new BordersRule(rule, mode);
+    }
+
+    //% blockId=tileScanner_bordersSides
+    //% block="location borders $rule only on $sideGroups"
+    //% sideGroups.shadow=tileScanner_sideGroups
+    //% group=Rules
+    //% weight=45
+    export function bordersSides(rule: TileRule, sideGroups: number[]): TileRule {
+        return new BordersSidesRule(rule, sideGroups);
+    }
+
+    //% blockId=tileScanner_sideGroups
+    //% block="$side1||$op1 $side2 $op2 $side3 $op3 $side4 $op4 $side5 $op5 $side6 $op6 $side7 $op7 $side8 $op8 $side9 $op9 $side10 $op10 $side11 $op11 $side12"
+    //% expandableArgumentBreaks="2,4,6,8,10,12,14,16,18,20,22,24"
+    //% inlineInputMode=inline
+    //% blockHidden=true
+    export function sideGroups(
+        side1: CollisionDirection,
+        op1?: LogicOp,
+        side2?: CollisionDirection,
+        op2?: LogicOp,
+        side3?: CollisionDirection,
+        op3?: LogicOp,
+        side4?: CollisionDirection,
+        op4?: LogicOp,
+        side5?: CollisionDirection,
+        op5?: LogicOp,
+        side6?: CollisionDirection,
+        op6?: LogicOp,
+        side7?: CollisionDirection,
+        op7?: LogicOp,
+        side8?: CollisionDirection,
+        op8?: LogicOp,
+        side9?: CollisionDirection,
+        op9?: LogicOp,
+        side10?: CollisionDirection,
+        op10?: LogicOp,
+        side11?: CollisionDirection,
+        op11?: LogicOp,
+        side12?: CollisionDirection,
+    ): number[] {
+        const rawSides = [
+            side1,
+            side2,
+            side3,
+            side4,
+            side5,
+            side6,
+            side7,
+            side8,
+            side9,
+            side10,
+            side11,
+            side12
+        ];
+
+        const rawOps = [
+            op1,
+            op2,
+            op3,
+            op4,
+            op5,
+            op6,
+            op7,
+            op8,
+            op9,
+            op10,
+            op11,
+        ];
+
+        const sides: CollisionDirection[] = [];
+        const ops: LogicOp[] = [];
+
+        for (let i = 0; i < rawSides.length; i++) {
+            const side = rawSides[i];
+            if (side == undefined) {
+                break;
+            }
+            sides.push(side);
+
+            const op = rawOps[i];
+            if (op != undefined) {
+                ops.push(op);
+            }
+            else {
+                ops.push(LogicOp.And);
+            }
+        }
+
+        return _getSideGroups(sides, ops);
     }
 
     //% blockId=tileScanner_not
@@ -473,6 +570,31 @@ namespace tileScanner {
         }
     }
 
+    //% blockId=tileScanner_createOverlapTester
+    //% block="create bbox sprite for $locations with kind $kind||in map $map"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% kind.shadow=spritekind
+    //% map.shadow=variables_get
+    //% map.defl="myTilemap"
+    //% group=Sprites
+    //% weight=0
+    export function createOverlapTester(locations: tiles.Location[], kind: number, map?: tiles.TileMapData): Sprite {
+        let scale = 4;
+        if (!map) map = game.currentScene().tileMap.data;
+        if (map) scale = map.scale;
+
+        const bounds = new LocationGroupBounds(locations);
+
+        return new OverlapTesterSprite(
+            bounds.minColumn << scale,
+            bounds.minRow << scale,
+            (bounds.maxColumn + 1) << scale,
+            (bounds.maxRow + 1) << scale,
+            kind
+        );
+    }
+
     //% blockId=tileScanner_createOutlineSprite
     //% block="create outline sprite for $locations||with color $color thickness $thickness"
     //% blockSetVariable=myOutlineSprite
@@ -481,7 +603,7 @@ namespace tileScanner {
     //% thickness.defl=1
     //% color.defl=2
     //% color.shadow="colorindexpicker"
-    //% group=Outline
+    //% group=Sprites
     //% weight=100
     export function createOutlineSprite(locations: tiles.Location[], color?: number, thickness?: number): Sprite {
         const scale = game.currentScene().tileMap.scale;
@@ -499,7 +621,7 @@ namespace tileScanner {
     //% outlineSprite.defl=myOutlineSprite
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
-    //% group=Outline
+    //% group=Sprites
     //% weight=90
     //% blockGap=8
     export function updateTiles(outlineSprite: Sprite, locations: tiles.Location[]) {
@@ -515,7 +637,7 @@ namespace tileScanner {
     //% outlineSprite.defl=myOutlineSprite
     //% color.defl=2
     //% color.shadow="colorindexpicker"
-    //% group=Outline
+    //% group=Sprites
     //% weight=80
     //% blockGap=8
     export function setOutlineColor(outlineSprite: Sprite, color: number) {
@@ -529,7 +651,7 @@ namespace tileScanner {
     //% outlineSprite.shadow=variables_get
     //% outlineSprite.defl=myOutlineSprite
     //% thickness.defl=1
-    //% group=Outline
+    //% group=Sprites
     //% weight=70
     //% blockGap=8
     export function setOutlineThickness(outlineSprite: Sprite, thickness: number) {

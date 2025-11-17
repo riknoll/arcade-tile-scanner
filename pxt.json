@@ -4,6 +4,7 @@
     "files": [
         "rules.ts",
         "outline.ts",
+        "overlapTester.ts",
         "api.ts",
         "main.ts"
     ],
