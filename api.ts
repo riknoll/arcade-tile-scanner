@@ -225,6 +225,7 @@ namespace tileScanner {
     //% group=Rules
     //% weight=80
     //% blockGap=8
+    //% deprecated=1
     export function isInsideMap(): TileRule {
         return new IsInMapRule();
     }
