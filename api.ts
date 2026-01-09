@@ -45,6 +45,58 @@ namespace tileScanner {
         Or
     }
 
+    export enum ScanDirection {
+        //% block="top"
+        Top,
+        //% block="right"
+        Right,
+        //% block="bottom"
+        Bottom,
+        //% block="left"
+        Left,
+        //% block="top and bottom"
+        TopAndBottom,
+        //% block="left and right"
+        LeftAndRight,
+        //% block="all directions"
+        AllDirections
+    }
+
+    export enum LineType {
+        //% block="horizontal"
+        Horizontal,
+        //% block="vertical"
+        Vertical,
+        //% block="both"
+        Both
+    }
+
+    export enum JoinOp {
+        //% block="concatenate"
+        Concatenate,
+        //% block="union (or)"
+        Union,
+        //% block="intersection (and)"
+        Intersection,
+        //% block="symmetric difference (xor)"
+        SymmetricDifference
+    }
+
+    /**
+     * Scans from an origin locations in a given direction. If a rule is specified, the scan will
+     * stop once the rule evaluates to false. The origin location is always included first in the
+     * returned list of locations unless it doesn't match the given rule, in which case the list
+     * will be empty. The order of the returned locations is from the origin outwards, unless scanning
+     * in multiple directions in which case each direction is scanned fully before moving to the next
+     * direction.
+     *
+     * @param origin The location to start scanning from
+     * @param direction The direction to scan in
+     * @param maxTileDistance The maximum number of locations to return. A value of <= 0 means no maximum
+     * @param rule A rule to filter the locations by. If the rule evaluates to false, the scan will stop
+     * @param map The map to scan for locations in
+     * @returns The list of locations that are matched according to the parameters
+     */
     //% blockId=tileScanner_scanInDirection
     //% block="scan from $origin in direction $direction||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
@@ -54,14 +106,63 @@ namespace tileScanner {
     //% map.defl=myTilemap
     //% group=Scan
     //% weight=100
-    export function scanInDirection(origin: tiles.Location, direction: CollisionDirection, maxTileDistance?: number, rule?: TileRule, map?: tiles.TileMapData): tiles.Location[] {
+    export function scanInDirection(origin: tiles.Location, direction: ScanDirection, maxTileDistance?: number, rule?: TileRule, map?: tiles.TileMapData): tiles.Location[] {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return [];
         if (maxTileDistance == undefined || maxTileDistance <= 0) {
             maxTileDistance = 0xffffffff;
         }
 
+        const directions: CollisionDirection[] = [];
+
+        if (direction === ScanDirection.AllDirections) {
+            directions.push(CollisionDirection.Top);
+            directions.push(CollisionDirection.Right);
+            directions.push(CollisionDirection.Bottom);
+            directions.push(CollisionDirection.Left);
+        }
+        else if (direction === ScanDirection.TopAndBottom) {
+            directions.push(CollisionDirection.Top);
+            directions.push(CollisionDirection.Bottom);
+        }
+        else if (direction === ScanDirection.LeftAndRight) {
+            directions.push(CollisionDirection.Left);
+            directions.push(CollisionDirection.Right);
+        }
+        else if (direction === ScanDirection.Top) {
+            directions.push(CollisionDirection.Top);
+        }
+        else if (direction === ScanDirection.Right) {
+            directions.push(CollisionDirection.Right);
+        }
+        else if (direction === ScanDirection.Bottom) {
+            directions.push(CollisionDirection.Bottom);
+        }
+        else if (direction === ScanDirection.Left) {
+            directions.push(CollisionDirection.Left);
+        }
+
         const result: tiles.Location[] = [];
+        for (const dir of directions) {
+            for (const loc of scanCore(origin, dir, maxTileDistance, rule, map)) {
+                result.push(loc);
+            }
+        }
+        result.unshift(origin);
+        return result;
+    }
+
+    function scanCore(
+        origin: tiles.Location,
+        direction: CollisionDirection,
+        maxTileDistance: number,
+        rule: TileRule | undefined,
+        map: tiles.TileMapData
+    ): tiles.Location[] {
+        const result: tiles.Location[] = [];
+        if (rule && !rule.acceptsLocation(origin.column, origin.row, map)) {
+            return result;
+        }
 
         let current = origin.getNeighboringLocation(direction);
         let distance = 1;
@@ -74,7 +175,6 @@ namespace tileScanner {
             if (rule && !rule.acceptsLocation(current.column, current.row, map)) {
                 break;
             }
-
             result.push(current);
             current = current.getNeighboringLocation(direction);
             distance++;
@@ -91,6 +191,17 @@ namespace tileScanner {
         ) { }
     }
 
+    /**
+     * Scans for locations using a breadth-first search from a start location. If no rule is
+     * specified, locations will be filtered by whatever the tile at the start location is.
+     *
+     * @param origin The location to start scanning from
+     * @param maxTileDistance The maximum distance in tiles from the origin that will be scanned
+     * @param rule A rule to match locations by while searching.
+     *      If not specified, locations will be matched by whatever the tile image at the start location was
+     * @param map The map to perform the search in
+     * @returns The list of locations scanned by the breadth-first search
+     */
     //% blockId=tileScanner_bfs
     //% block="BFS from $origin||max distance $maxTileDistance while matches $rule in $map"
     //% inlineInputMode=inline
@@ -138,6 +249,13 @@ namespace tileScanner {
         return result;
     }
 
+    /**
+     * Returns all locations in a tilemap that match a given rule.
+     *
+     * @param rule The rule to filter locations with
+     * @param map The map to scan for locations in
+     * @returns A list of all locations that match the given rule
+     */
     //% blockId=tileScanner_getAllMatchingLocations
     //% block="get all locations that match $rule||in $map"
     //% rule.shadow=tileScanner_tileIs
@@ -162,6 +280,18 @@ namespace tileScanner {
         return result;
     }
 
+    /**
+     * Gets a list of all locations bordering a given location. These locations
+     * can be optionally filtered by a rule. This function will never return
+     * locations that are outside the given tilemap, even if the origin location
+     * is on the edge of the map.
+     *
+     * @param origin The location to get the bordering locations of
+     * @param mode The types of bordering locations to be returned
+     * @param rule A rule to filter the border locations by
+     * @param map The map to get the locations in
+     * @returns A list of locations bordering the given origin location
+     */
     //% blockId=tileScanner_getAdjacentLocations
     //% block="locations $mode to $origin||that match $rule in $map"
     //% inlineInputMode=inline
@@ -186,6 +316,125 @@ namespace tileScanner {
         return result;
     }
 
+    /**
+     * Scans a tilemap for contiguous lines of tiles that match a given rule. Results
+     * are returned sorted by line length, longest first. The result of this function
+     * is a double array of locations, each inner array representing a line of locations.
+     *
+     * @param lineType The type of lines to scan for (horizontal, vertical, or both)
+     * @param rule The rule to match tiles against
+     * @param minLength The minimum length of a line to be considered a match
+     * @param maxLength The maximum length of a line to be considered a match
+     * @param map The map to scan for lines in
+     * @returns A list of lines, each represented as a list of locations
+     */
+    //% blockId=tileScanner_scanForLines
+    //% block="scan for $lineType lines that match $rule||with min length $minLength max length $maxLength in $map"
+    //% inlineInputMode=inline
+    //% rule.shadow=tileScanner_tileIs
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Scan
+    //% weight=60
+    export function scanForLines(lineType: LineType, rule: TileRule, minLength?: number, maxLength?: number, map?: tiles.TileMapData): tiles.Location[][] {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return [];
+        const result: tiles.Location[][] = [];
+
+        if (minLength == undefined || minLength < 1) {
+            minLength = 1;
+        }
+        if (maxLength == undefined || maxLength < minLength) {
+            maxLength = Math.max(map.width, map.height);
+        }
+
+        if (lineType !== LineType.Vertical) {
+            for (let y = 0; y < map.height; y++) {
+                let matchStart = -1;
+                for (let x = 0; x < map.width; x++) {
+                    if (rule.acceptsLocation(x, y, map)) {
+                        if (matchStart === -1) {
+                            matchStart = x;
+                        }
+                    }
+                    else {
+                        if (matchStart !== -1) {
+                            const matchLength = x - matchStart;
+
+                            if (matchLength >= minLength && matchLength <= maxLength) {
+                                const line: tiles.Location[] = [];
+                                for (let lx = matchStart; lx < x; lx++) {
+                                    line.push(new tiles.Location(lx, y, game.currentScene().tileMap));
+                                }
+                                result.push(line);
+                            }
+                            matchStart = -1;
+                        }
+                    }
+                }
+
+                if (matchStart !== -1) {
+                    const matchLength = map.width - matchStart;
+                    if (matchLength >= minLength && matchLength <= maxLength) {
+                        const line: tiles.Location[] = [];
+                        for (let lx = matchStart; lx < map.width; lx++) {
+                            line.push(new tiles.Location(lx, y, game.currentScene().tileMap));
+                        }
+                        result.push(line);
+                    }
+                }
+            }
+        }
+        if (lineType !== LineType.Horizontal) {
+            for (let x = 0; x < map.width; x++) {
+                let matchStart = -1;
+                for (let y = 0; y < map.height; y++) {
+                    if (rule.acceptsLocation(x, y, map)) {
+                        if (matchStart === -1) {
+                            matchStart = y;
+                        }
+                    }
+                    else {
+                        if (matchStart !== -1) {
+                            const matchLength = y - matchStart;
+                            if (matchLength >= minLength && matchLength <= maxLength) {
+                                const line: tiles.Location[] = [];
+                                for (let ly = matchStart; ly < y; ly++) {
+                                    line.push(new tiles.Location(x, ly, game.currentScene().tileMap));
+                                }
+                                result.push(line);
+                            }
+                            matchStart = -1;
+                        }
+                    }
+                }
+
+                if (matchStart !== -1) {
+                    const matchLength = map.height - matchStart;
+                    if (matchLength >= minLength && matchLength <= maxLength) {
+                        const line: tiles.Location[] = [];
+                        for (let ly = matchStart; ly < map.height; ly++) {
+                            line.push(new tiles.Location(x, ly, game.currentScene().tileMap));
+                        }
+                        result.push(line);
+                    }
+                }
+            }
+        }
+
+        result.sort((a, b) => b.length - a.length);
+
+        return result;
+    }
+
+    /**
+     * Checks a location in a Tilemap to see if it is matched by a given rule
+     *
+     * @param location The location to check
+     * @param rule The rule to check the location against
+     * @param map The map that the location is in
+     * @returns True if the location matches the rule, false otherwise
+     */
     //% blockId=tileScanner_matchesRule
     //% block="$location matches $rule||in $map"
     //% location.shadow=mapgettile
@@ -193,7 +442,7 @@ namespace tileScanner {
     //% map.shadow=variables_get
     //% map.defl=myTilemap
     //% group=Scan
-    //% weight=60
+    //% weight=50
     export function matchesRule(location: tiles.Location, rule: TileRule, map?: tiles.TileMapData): boolean {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return false;
@@ -201,6 +450,12 @@ namespace tileScanner {
         return rule.acceptsLocation(location.column, location.row, map);
     }
 
+    /**
+     * Returns a TileRule that checks if the tile image at a location is a specific tile.
+     *
+     * @param tile The tile image to check for
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_tileIs
     //% block="tile is $tile"
     //% tile.shadow=tileset_tile_picker
@@ -211,6 +466,11 @@ namespace tileScanner {
         return new TileIsRule(tile);
     }
 
+    /**
+     * Returns a TileRule that checks if a location is a wall or not.
+     *
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_isWall
     //% block="location is wall"
     //% group=Rules
@@ -220,6 +480,13 @@ namespace tileScanner {
         return new WallRule();
     }
 
+    /**
+     * Returns a TileRule that checks if a location is inside the tilemap
+     * or not. This rule is only useful for the "borders" and "borders sides"
+     * rules, which will evaluate on locations outside the tilemap.
+     *
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_isInsideMap
     //% block="location is inside map"
     //% group=Rules
@@ -229,6 +496,14 @@ namespace tileScanner {
         return new IsInMapRule();
     }
 
+    /**
+     * Returns a TileRule that checks a property of a location against a given value.
+     *
+     * @param property The location property to check
+     * @param op The comparison operation to use on the location property
+     * @param value The value to compare the location property against
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_comparison
     //% block="location $property $op $value"
     //% group=Rules
@@ -237,6 +512,14 @@ namespace tileScanner {
         return new PropertyComparisonRule(op, property, value);
     }
 
+    /**
+     * Returns a TileRule that checks if a location borders another location that matches
+     * a given TileRule.
+     *
+     * @param rule The TileRule to check bordering locations for
+     * @param mode The type of bordering locations to be checked
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_borders
     //% block="location borders $rule||$mode"
     //% rule.shadow=tileScanner_tileIs
@@ -246,6 +529,14 @@ namespace tileScanner {
         return new BordersRule(rule, mode);
     }
 
+    /**
+     * Returns a TileRule that checks if a location borders another location that matches
+     * a given TileRule only on specific sides (e.g. left or right).
+     *
+     * @param rule The TileRule to check bordering locations for
+     * @param sideGroups A group of numbers representing sides to check. Use sideGroups to generate this array.
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_bordersSides
     //% block="location borders $rule only on $sideGroups"
     //% sideGroups.shadow=tileScanner_sideGroups
@@ -256,6 +547,12 @@ namespace tileScanner {
         return new BordersSidesRule(rule, sideGroups);
     }
 
+    /**
+     * Generates a list of sideGroups from a logical expression of adjacent sides. Used
+     * with bordersSides.
+     *
+     * @returns An array of numbers representing sides to check with the bordersSides TileRule
+     */
     //% blockId=tileScanner_sideGroups
     //% block="$side1||$op1 $side2 $op2 $side3 $op3 $side4 $op4 $side5 $op5 $side6 $op6 $side7 $op7 $side8 $op8 $side9 $op9 $side10 $op10 $side11 $op11 $side12"
     //% expandableArgumentBreaks="2,4,6,8,10,12,14,16,18,20,22,24"
@@ -337,6 +634,12 @@ namespace tileScanner {
         return _getSideGroups(sides, ops);
     }
 
+    /**
+     * Returns a TileRule that matches the inverse of locations matched by the given TileRule.
+     *
+     * @param rule The TileRule to invert
+     * @returns A TileRule
+     */
     //% blockId=tileScanner_not
     //% block="not $rule"
     //% rule.shadow=tileScanner_tileIs
@@ -347,6 +650,10 @@ namespace tileScanner {
         return new NotRule(rule);
     }
 
+    /**
+     * Returns a TileRule that matches locations that are matched by all of the argument TileRules.
+     * @returns
+     */
     //% blockId=tileScanner_and
     //% block="$arg1 and $arg2||and $arg3 and $arg4 and $arg5 and $arg6 and $arg7 and $arg8 and $arg9"
     //% inlineInputMode=inline
@@ -379,6 +686,9 @@ namespace tileScanner {
         return new AndRule(args);
     }
 
+    /**
+     * Returns a TileRule that matches any location that matches at least one of the argument TileRules
+     */
     //% blockId=tileScanner_or
     //% block="$arg1 or $arg2||or $arg3 or $arg4 or $arg5 or $arg6 or $arg7 or $arg8 or $arg9"
     //% inlineInputMode=inline
@@ -410,6 +720,13 @@ namespace tileScanner {
         return new OrRule(args);
     }
 
+    /**
+     * Sets the tiles at multiple locations in a Tilemap
+     *
+     * @param locations The locations to set
+     * @param tile The Image of the tile to set at the specified locations
+     * @param map The map to set the locations in
+     */
     //% blockId=tileScanner_setTileAtLocations
     //% block="set $tile at $locations||in $map"
     //% tile.shadow=tileset_tile_picker
@@ -420,7 +737,7 @@ namespace tileScanner {
     //% group=Operations
     //% weight=100
     //% blockGap=8
-    export function setTileAtLocations(locations: tiles.Location[], tile: Image, map?: tiles.TileMapData) {
+    export function setTileAtLocations(locations: tiles.Location[], tile: Image, map?: tiles.TileMapData): void {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return;
 
@@ -569,6 +886,103 @@ namespace tileScanner {
             case LocationGroupMetric.TileWidth: return bounds.widthInTiles;
             case LocationGroupMetric.TileHeight: return bounds.heightInTiles;
         }
+    }
+
+    /**
+     * Joins two arrays of locations using a specified operation. All operations other
+     * than "Concatenate" will deduplicate the resulting array.
+     *
+     * @param operation The join operation to perform
+     * @param a First array of locations
+     * @param b Second array of locations
+     * @returns The resulting array of locations after the join operation
+     */
+    //% blockId=tileScanner_joinLocations
+    //% block="$operation $a and $b"
+    //% a.shadow=variables_get
+    //% a.defl=myLocationsA
+    //% b.shadow=variables_get
+    //% b.defl=myLocationsB
+    //% group=Operations
+    //% weight=30
+    export function join(operation: JoinOp, a: tiles.Location[], b: tiles.Location[]): tiles.Location[] {
+        switch (operation) {
+            case JoinOp.Concatenate:
+                return a.concat(b);
+            case JoinOp.Union:
+                return deduplicate(a.concat(b));
+            case JoinOp.Intersection:
+                return deduplicate(a.filter(loc => containsLocation(b, loc)));
+            case JoinOp.SymmetricDifference:
+                return deduplicate(a.filter(loc => !containsLocation(b, loc)).concat(b.filter(loc => !containsLocation(a, loc))));
+        }
+    }
+
+    /**
+     * Deduplicates an array of locations, removing any duplicate entries.
+     * @param locations The array of locations to deduplicate
+     * @returns A new array of locations with duplicates removed
+     */
+    //% blockId=tileScanner_deduplicateLocations
+    //% block="deduplicate $locations"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% group=Operations
+    //% weight=20
+    export function deduplicate(locations: tiles.Location[]): tiles.Location[] {
+        const result: tiles.Location[] = [];
+        for (const loc of locations) {
+            if (indexOfLocation(result, loc) === -1) {
+                result.push(loc);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Sorts an array of locations by their distance from a given origin location.
+     * @param locations The array of locations to sort
+     * @param origin The origin location to sort by distance from
+     * @returns A new array of locations sorted by distance from the origin
+     */
+    //% blockId=tileScanner_sortByDistance
+    //% block="$locations sorted by distance from $origin"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% origin.shadow=mapgettile
+    //% group=Operations
+    //% weight=10
+    //% blockGap=8
+    export function sortByDistance(locations: tiles.Location[], origin: tiles.Location): tiles.Location[] {
+        const sorted = locations.slice(0);
+        sorted.sort((a, b) => {
+            const distA = (a.column - origin.column) * (a.column - origin.column) + (a.row - origin.row) * (a.row - origin.row);
+            const distB = (b.column - origin.column) * (b.column - origin.column) + (b.row - origin.row) * (b.row - origin.row);
+            return distA - distB;
+        });
+        return sorted;
+    }
+
+    /**
+     * Sorts an array of locations by their column and then row.
+     * @param locations The array of locations to sort
+     * @returns A new array of locations sorted by column then row
+     */
+    //% blockId=tileScanner_sortByColumnRow
+    //% block="$locations sorted by column then row"
+    //% locations.shadow=variables_get
+    //% locations.defl=myLocations
+    //% group=Operations
+    //% weight=5
+    export function sortByColumnRow(locations: tiles.Location[]): tiles.Location[] {
+        const sorted = locations.slice(0);
+        sorted.sort((a, b) => {
+            if (a.column !== b.column) {
+                return a.column - b.column;
+            }
+            return a.row - b.row;
+        });
+        return sorted;
     }
 
     //% blockId=tileScanner_createOverlapTester
