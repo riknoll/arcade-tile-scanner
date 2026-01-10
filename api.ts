@@ -221,9 +221,18 @@ namespace tileScanner {
 
         if (!rule) rule = new TileIsRule(map.getTileImage(map.getTile(origin.column, origin.row)));
 
-        const queue: BFSNode[] = [];
         const visited = image.create(map.width, map.height);
+        return bfsCore(origin, maxTileDistance, rule, map, visited);
+    }
 
+    function bfsCore(
+        origin: tiles.Location,
+        maxTileDistance: number,
+        rule: TileRule,
+        map: tiles.TileMapData,
+        visited: Image
+    ): tiles.Location[] {
+        const queue: BFSNode[] = [];
         const pushLocation = (col: number, row: number, distance: number) => {
             if (visited.getPixel(col, row) || distance >= maxTileDistance || map.isOutsideMap(col, row)) return;
             visited.setPixel(col, row, 1);
@@ -336,6 +345,7 @@ namespace tileScanner {
     //% map.defl=myTilemap
     //% group=Scan
     //% weight=60
+    //% blockGap=8
     export function scanForLines(lineType: LineType, rule: TileRule, minLength?: number, maxLength?: number, map?: tiles.TileMapData): tiles.Location[][] {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return [];
@@ -428,6 +438,55 @@ namespace tileScanner {
     }
 
     /**
+     * Scans a tilemap for groups of contiguous tiles that match a given rule. Results are
+     * returned sorted by group size, largest first. The result of this function is a double
+     * array of locations, each inner array representing a group of locations.
+     *
+     * @param rule The rule to match tiles against
+     * @param minSize The minimum size of a group to include in the results
+     * @param maxSize The maximum size of a group to include in the results
+     * @param map The tilemap to scan
+     * @returns An array of groups of locations that match the rule
+     */
+    //% blockId=tileScanner_scanForGroups
+    //% block="scan for groups that match $rule||with min size $minSize max size $maxSize in $map"
+    //% inlineInputMode=inline
+    //% rule.shadow=tileScanner_tileIs
+    //% map.shadow=variables_get
+    //% map.defl=myTilemap
+    //% group=Scan
+    //% weight=50
+    export function scanForGroups(rule: TileRule, minSize?: number, maxSize?: number, map?: tiles.TileMapData): tiles.Location[][] {
+        if (!map) map = game.currentScene().tileMap.data;
+        if (!map) return [];
+
+        const result: tiles.Location[][] = [];
+        const visited = image.create(map.width, map.height);
+
+        if (minSize == undefined || minSize < 1) {
+            minSize = 1;
+        }
+        if (maxSize == undefined || maxSize < minSize) {
+            maxSize = map.width * map.height;
+        }
+
+        for (let x = 0; x < map.width; x++) {
+            for (let y = 0; y < map.height; y++) {
+                if (!visited.getPixel(x, y) && rule.acceptsLocation(x, y, map)) {
+                    const locations = bfsCore(new tiles.Location(x, y, game.currentScene().tileMap), 0xffffffff, rule, map, visited);
+
+                    if (locations.length >= minSize && locations.length <= maxSize) {
+                        result.push(locations);
+                    }
+                }
+            }
+        }
+
+        result.sort((a, b) => b.length - a.length);
+        return result;
+    }
+
+    /**
      * Checks a location in a Tilemap to see if it is matched by a given rule
      *
      * @param location The location to check
@@ -442,7 +501,7 @@ namespace tileScanner {
     //% map.shadow=variables_get
     //% map.defl=myTilemap
     //% group=Scan
-    //% weight=50
+    //% weight=0
     export function matchesRule(location: tiles.Location, rule: TileRule, map?: tiles.TileMapData): boolean {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return false;
