@@ -67,8 +67,8 @@ namespace tileScanner {
         Horizontal,
         //% block="vertical"
         Vertical,
-        //% block="both"
-        Both
+        //% block="horizontal or vertical"
+        HorizontalOrVertical
     }
 
     export enum JoinOp {
