@@ -90,6 +90,7 @@ namespace tileScanner {
      * in multiple directions in which case each direction is scanned fully before moving to the next
      * direction.
      *
+     *
      * @param origin The location to start scanning from
      * @param direction The direction to scan in
      * @param maxTileDistance The maximum number of locations to return. A value of <= 0 means no maximum
@@ -195,10 +196,10 @@ namespace tileScanner {
      * Scans for locations using a breadth-first search from a start location. If no rule is
      * specified, locations will be filtered by whatever the tile at the start location is.
      *
+     *
      * @param origin The location to start scanning from
      * @param maxTileDistance The maximum distance in tiles from the origin that will be scanned
-     * @param rule A rule to match locations by while searching.
-     *      If not specified, locations will be matched by whatever the tile image at the start location was
+     * @param rule A rule to match locations by while searching. If not specified, locations will be matched by whatever the tile image at the start location was
      * @param map The map to perform the search in
      * @returns The list of locations scanned by the breadth-first search
      */
@@ -261,6 +262,7 @@ namespace tileScanner {
     /**
      * Returns all locations in a tilemap that match a given rule.
      *
+     *
      * @param rule The rule to filter locations with
      * @param map The map to scan for locations in
      * @returns A list of all locations that match the given rule
@@ -294,6 +296,7 @@ namespace tileScanner {
      * can be optionally filtered by a rule. This function will never return
      * locations that are outside the given tilemap, even if the origin location
      * is on the edge of the map.
+     *
      *
      * @param origin The location to get the bordering locations of
      * @param mode The types of bordering locations to be returned
@@ -329,6 +332,7 @@ namespace tileScanner {
      * Scans a tilemap for contiguous lines of tiles that match a given rule. Results
      * are returned sorted by line length, longest first. The result of this function
      * is a double array of locations, each inner array representing a line of locations.
+     *
      *
      * @param lineType The type of lines to scan for (horizontal, vertical, or both)
      * @param rule The rule to match tiles against
@@ -442,6 +446,7 @@ namespace tileScanner {
      * returned sorted by group size, largest first. The result of this function is a double
      * array of locations, each inner array representing a group of locations.
      *
+     *
      * @param rule The rule to match tiles against
      * @param minSize The minimum size of a group to include in the results
      * @param maxSize The maximum size of a group to include in the results
@@ -489,6 +494,7 @@ namespace tileScanner {
     /**
      * Checks a location in a Tilemap to see if it is matched by a given rule
      *
+     *
      * @param location The location to check
      * @param rule The rule to check the location against
      * @param map The map that the location is in
@@ -512,6 +518,7 @@ namespace tileScanner {
     /**
      * Returns a TileRule that checks if the tile image at a location is a specific tile.
      *
+     *
      * @param tile The tile image to check for
      * @returns A TileRule
      */
@@ -527,6 +534,7 @@ namespace tileScanner {
 
     /**
      * Returns a TileRule that checks if a location is a wall or not.
+     *
      *
      * @returns A TileRule
      */
@@ -544,6 +552,7 @@ namespace tileScanner {
      * or not. This rule is only useful for the "borders" and "borders sides"
      * rules, which will evaluate on locations outside the tilemap.
      *
+     *
      * @returns A TileRule
      */
     //% blockId=tileScanner_isInsideMap
@@ -557,6 +566,7 @@ namespace tileScanner {
 
     /**
      * Returns a TileRule that checks a property of a location against a given value.
+     *
      *
      * @param property The location property to check
      * @param op The comparison operation to use on the location property
@@ -575,6 +585,7 @@ namespace tileScanner {
      * Returns a TileRule that checks if a location borders another location that matches
      * a given TileRule.
      *
+     *
      * @param rule The TileRule to check bordering locations for
      * @param mode The type of bordering locations to be checked
      * @returns A TileRule
@@ -591,6 +602,7 @@ namespace tileScanner {
     /**
      * Returns a TileRule that checks if a location borders another location that matches
      * a given TileRule only on specific sides (e.g. left or right).
+     *
      *
      * @param rule The TileRule to check bordering locations for
      * @param sideGroups A group of numbers representing sides to check. Use sideGroups to generate this array.
@@ -609,6 +621,7 @@ namespace tileScanner {
     /**
      * Generates a list of sideGroups from a logical expression of adjacent sides. Used
      * with bordersSides.
+     *
      *
      * @returns An array of numbers representing sides to check with the bordersSides TileRule
      */
@@ -696,6 +709,7 @@ namespace tileScanner {
     /**
      * Returns a TileRule that matches the inverse of locations matched by the given TileRule.
      *
+     *
      * @param rule The TileRule to invert
      * @returns A TileRule
      */
@@ -711,7 +725,6 @@ namespace tileScanner {
 
     /**
      * Returns a TileRule that matches locations that are matched by all of the argument TileRules.
-     * @returns
      */
     //% blockId=tileScanner_and
     //% block="$arg1 and $arg2||and $arg3 and $arg4 and $arg5 and $arg6 and $arg7 and $arg8 and $arg9"
@@ -782,6 +795,7 @@ namespace tileScanner {
     /**
      * Sets the tiles at multiple locations in a Tilemap
      *
+     *
      * @param locations The locations to set
      * @param tile The Image of the tile to set at the specified locations
      * @param map The map to set the locations in
@@ -823,6 +837,14 @@ namespace tileScanner {
         }
     }
 
+    /**
+     * Sets the wall state for all locations within an array in a Tilemap
+     *
+     *
+     * @param locations The locations to set the wall state of
+     * @param isWall Whether the locations should be walls or not
+     * @param map The map to set the wall state in
+     */
     //% blockId=tileScanner_setWallAtLocations
     //% block="set wall $isWall at $locations||in $map"
     //% locations.shadow=variables_get
@@ -840,6 +862,15 @@ namespace tileScanner {
         }
     }
 
+    /**
+     * Filters an array of locations by a given TileRule.
+     *
+     *
+     * @param locations The locations to filter
+     * @param rule The TileRule to filter the locations by
+     * @param map The map that the locations are in
+     * @returns An array of locations that match the given TileRule
+     */
     //% blockId=tileScanner_filterLocations
     //% block="filter $locations by $rule||in $map"
     //% locations.shadow=variables_get
@@ -856,6 +887,15 @@ namespace tileScanner {
         return locations.filter(l => rule.acceptsLocation(l.column, l.row, map));
     }
 
+    /**
+     * Checks if any location in an array overlaps with a given sprite.
+     *
+     *
+     * @param locations The locations to check for overlap
+     * @param sprite The sprite to check for overlap with
+     * @param map The map that the locations are in
+     * @returns True if any location overlaps with the sprite, false otherwise
+     */
     //% blockId=tileScanner_overlapsSprite
     //% block="$sprite overlaps $locations||in $map"
     //% sprite.shadow=variables_get
@@ -888,6 +928,15 @@ namespace tileScanner {
         return false;
     }
 
+    /**
+     * Finds the index of a location within an array of locations. Returns -1 if not found.
+     * This function compares locations by their column and row values, not by reference.
+     *
+     *
+     * @param locations The array of locations to search
+     * @param toFind The location to find
+     * @returns The index of the location in the array, or -1 if not found
+     */
     //% blockId=tileScanner_indexOfLocation
     //% block="$locations index of $toFind"
     //% locations.shadow=variables_get
@@ -905,6 +954,15 @@ namespace tileScanner {
         return -1;
     }
 
+    /**
+     * Checks if an array of locations contains a specific location. This function compares
+     * locations by their column and row values, not by reference.
+     *
+     *
+     * @param locations The array of locations to check
+     * @param toFind The location to find
+     * @returns True if the location is found in the array, false otherwise
+     */
     //% blockId=tileScanner_containsLocation
     //% block="$locations contains $toFind"
     //% locations.shadow=variables_get
@@ -916,6 +974,16 @@ namespace tileScanner {
         return indexOfLocation(locations, toFind) !== -1;
     }
 
+    /**
+     * Calculates a metric for a group of locations, such as their bounding box
+     * dimensions or position.
+     *
+     *
+     * @param locations The array of locations to calculate the metric for
+     * @param metric The metric to calculate
+     * @param map The map that the locations are in
+     * @returns The calculated metric value
+     */
     //% blockId=tileScanner_calculateMetric
     //% block="$locations calculate $metric||in $map"
     //% locations.shadow=variables_get
@@ -951,6 +1019,7 @@ namespace tileScanner {
      * Joins two arrays of locations using a specified operation. All operations other
      * than "Concatenate" will deduplicate the resulting array.
      *
+     *
      * @param operation The join operation to perform
      * @param a First array of locations
      * @param b Second array of locations
@@ -979,6 +1048,8 @@ namespace tileScanner {
 
     /**
      * Deduplicates an array of locations, removing any duplicate entries.
+     *
+     *
      * @param locations The array of locations to deduplicate
      * @returns A new array of locations with duplicates removed
      */
@@ -1000,6 +1071,8 @@ namespace tileScanner {
 
     /**
      * Sorts an array of locations by their distance from a given origin location.
+     *
+     *
      * @param locations The array of locations to sort
      * @param origin The origin location to sort by distance from
      * @returns A new array of locations sorted by distance from the origin
@@ -1024,6 +1097,8 @@ namespace tileScanner {
 
     /**
      * Sorts an array of locations by their column and then row.
+     *
+     *
      * @param locations The array of locations to sort
      * @returns A new array of locations sorted by column then row
      */
@@ -1044,6 +1119,16 @@ namespace tileScanner {
         return sorted;
     }
 
+    /**
+     * Creates a sprite that can be used to test for overlaps with the bounding box of
+     * a group of locations. This sprite will cover the entire bounding box of the locations.
+     *
+     *
+     * @param locations The array of locations to create the bounding box for
+     * @param kind The kind of sprite to create
+     * @param map The map that the locations are in
+     * @returns A sprite that can be used to test for overlaps with the bounding box of the locations
+     */
     //% blockId=tileScanner_createOverlapTester
     //% block="create bbox sprite for $locations with kind $kind||in map $map"
     //% locations.shadow=variables_get
@@ -1069,6 +1154,15 @@ namespace tileScanner {
         );
     }
 
+    /**
+     * Creates a sprite that outlines a group of tile locations.
+     *
+     *
+     * @param locations The array of locations to outline
+     * @param color The color of the outline
+     * @param thickness The thickness of the outline
+     * @returns A sprite that outlines the specified locations
+     */
     //% blockId=tileScanner_createOutlineSprite
     //% block="create outline sprite for $locations||with color $color thickness $thickness"
     //% blockSetVariable=myOutlineSprite
@@ -1089,6 +1183,13 @@ namespace tileScanner {
         return result;
     }
 
+    /**
+     * Updates the locations outlined by a TileOutlineSprite.
+     *
+     *
+     * @param outlineSprite The TileOutlineSprite to update
+     * @param locations The new array of locations to outline
+     */
     //% blockId=tileScanner_updateTiles
     //% block="$outlineSprite update locations to $locations"
     //% outlineSprite.shadow=variables_get
@@ -1105,6 +1206,13 @@ namespace tileScanner {
         (outlineSprite as TileOutlineSprite).updateTiles(locations, scale);
     }
 
+    /**
+     * Sets the outline color of a TileOutlineSprite.
+     *
+     *
+     * @param outlineSprite The TileOutlineSprite to set the color of
+     * @param color The new outline color
+     */
     //% blockId=tileScanner_setOutlineColor
     //% block="$outlineSprite set outline color $color"
     //% outlineSprite.shadow=variables_get
@@ -1120,6 +1228,13 @@ namespace tileScanner {
         (outlineSprite as TileOutlineSprite).color = color;
     }
 
+    /**
+     * Sets the outline thickness of a TileOutlineSprite.
+     *
+     *
+     * @param outlineSprite The TileOutlineSprite to set the thickness of
+     * @param thickness The new outline thickness
+     */
     //% blockId=tileScanner_setOutlineThickness
     //% block="$outlineSprite set outline thickness $thickness"
     //% outlineSprite.shadow=variables_get
