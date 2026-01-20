@@ -100,6 +100,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_scanInDirection
     //% block="scan from $origin in direction $direction||max distance $maxTileDistance while matches $rule in $map"
+    //% help=github:arcade-tile-scanner/docs/scan-in-direction
     //% inlineInputMode=inline
     //% origin.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
@@ -205,6 +206,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_bfs
     //% block="BFS from $origin||max distance $maxTileDistance while matches $rule in $map"
+    //% help=github:arcade-tile-scanner/docs/bfs
     //% inlineInputMode=inline
     //% origin.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
@@ -269,6 +271,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_getAllMatchingLocations
     //% block="get all locations that match $rule||in $map"
+    //% help=github:arcade-tile-scanner/docs/get-all-matching-locations
     //% rule.shadow=tileScanner_tileIs
     //% map.shadow=variables_get
     //% map.defl=myTilemap
@@ -306,6 +309,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_getAdjacentLocations
     //% block="locations $mode to $origin||that match $rule in $map"
+    //% help=github:arcade-tile-scanner/docs/get-adjacent-locations
     //% inlineInputMode=inline
     //% origin.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
@@ -343,6 +347,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_scanForLines
     //% block="scan for $lineType lines that match $rule||with min length $minLength max length $maxLength in $map"
+    //% help=github:arcade-tile-scanner/docs/scan-for-lines
     //% inlineInputMode=inline
     //% rule.shadow=tileScanner_tileIs
     //% map.shadow=variables_get
@@ -455,6 +460,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_scanForGroups
     //% block="scan for groups that match $rule||with min size $minSize max size $maxSize in $map"
+    //% help=github:arcade-tile-scanner/docs/scan-for-groups
     //% inlineInputMode=inline
     //% rule.shadow=tileScanner_tileIs
     //% map.shadow=variables_get
@@ -502,6 +508,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_matchesRule
     //% block="$location matches $rule||in $map"
+    //% help=github:arcade-tile-scanner/docs/matches-rule
     //% location.shadow=mapgettile
     //% rule.shadow=tileScanner_tileIs
     //% map.shadow=variables_get
@@ -524,10 +531,12 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_tileIs
     //% block="tile is $tile"
+    //% help=github:arcade-tile-scanner/docs/tile-is
     //% tile.shadow=tileset_tile_picker
     //% group=Rules
     //% weight=100
     //% blockGap=8
+    //% snippet="tileScanner.tileIs(img`.`)"
     export function tileIs(tile: Image): TileRule {
         return new TileIsRule(tile);
     }
@@ -540,6 +549,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_isWall
     //% block="location is wall"
+    //% help=github:arcade-tile-scanner/docs/is-wall
     //% group=Rules
     //% weight=90
     //% blockGap=8
@@ -557,6 +567,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_isInsideMap
     //% block="location is inside map"
+    //% help=github:arcade-tile-scanner/docs/is-inside-map
     //% group=Rules
     //% weight=80
     //% blockGap=8
@@ -575,6 +586,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_comparison
     //% block="location $property $op $value"
+    //% help=github:arcade-tile-scanner/docs/comparison
     //% group=Rules
     //% weight=70
     export function comparison(property: TileProperty, op: ComparisonOp, value: number): TileRule {
@@ -592,6 +604,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_borders
     //% block="location borders $rule||$mode"
+    //% help=github:arcade-tile-scanner/docs/borders
     //% rule.shadow=tileScanner_tileIs
     //% group=Rules
     //% weight=50
@@ -610,6 +623,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_bordersSides
     //% block="location borders $rule only on $sideGroups"
+    //% help=github:arcade-tile-scanner/docs/borders-sides
     //% sideGroups.shadow=tileScanner_sideGroups
     //% rule.shadow=tileScanner_tileIs
     //% group=Rules
@@ -627,6 +641,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_sideGroups
     //% block="$side1||$op1 $side2 $op2 $side3 $op3 $side4 $op4 $side5 $op5 $side6 $op6 $side7 $op7 $side8 $op8 $side9 $op9 $side10 $op10 $side11 $op11 $side12"
+    //% help=github:arcade-tile-scanner/docs/side-groups
     //% expandableArgumentBreaks="2,4,6,8,10,12,14,16,18,20,22,24"
     //% inlineInputMode=inline
     //% blockHidden=true
@@ -715,6 +730,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_not
     //% block="not $rule"
+    //% help=github:arcade-tile-scanner/docs/not
     //% rule.shadow=tileScanner_tileIs
     //% group=Rules
     //% weight=30
@@ -728,10 +744,12 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_and
     //% block="$arg1 and $arg2||and $arg3 and $arg4 and $arg5 and $arg6 and $arg7 and $arg8 and $arg9"
+    //% help=github:arcade-tile-scanner/docs/and
     //% inlineInputMode=inline
     //% group=Rules
     //% weight=20
     //% blockGap=8
+    //% snippet="tileScanner.and(tileScanner.tileIs(img`.`), tileScanner.isWall())"
     export function and(
         arg1: TileRule,
         arg2: TileRule,
@@ -763,9 +781,11 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_or
     //% block="$arg1 or $arg2||or $arg3 or $arg4 or $arg5 or $arg6 or $arg7 or $arg8 or $arg9"
+    //% help=github:arcade-tile-scanner/docs/or
     //% inlineInputMode=inline
     //% group=Rules
     //% weight=10
+    //% snippet="tileScanner.or(tileScanner.tileIs(img`.`), tileScanner.isWall())"
     export function or(
         arg1: TileRule,
         arg2: TileRule,
@@ -802,6 +822,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_setTileAtLocations
     //% block="set $tile at $locations||in $map"
+    //% help=github:arcade-tile-scanner/docs/set-tile-at-locations
     //% tile.shadow=tileset_tile_picker
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
@@ -810,6 +831,7 @@ namespace tileScanner {
     //% group=Operations
     //% weight=100
     //% blockGap=8
+    //% snippet="tileScanner.setTileAtLocations([], img`.`)"
     export function setTileAtLocations(locations: tiles.Location[], tile: Image, map?: tiles.TileMapData): void {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return;
@@ -847,12 +869,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_setWallAtLocations
     //% block="set wall $isWall at $locations||in $map"
+    //% help=github:arcade-tile-scanner/docs/set-wall-at-locations
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% map.shadow=variables_get
     //% map.defl=myTilemap
     //% group=Operations
     //% weight=90
+    //% snippet="tileScanner.setWallAtLocations([], true)"
     export function setWallAtLocations(locations: tiles.Location[], isWall: boolean, map?: tiles.TileMapData) {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return;
@@ -873,6 +897,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_filterLocations
     //% block="filter $locations by $rule||in $map"
+    //% help=github:arcade-tile-scanner/docs/filter-locations
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% rule.shadow=tileScanner_tileIs
@@ -880,6 +905,7 @@ namespace tileScanner {
     //% map.defl=myTilemap
     //% group=Operations
     //% weight=80
+    //% snippet="tileScanner.filterLocations([], tileScanner.tileIs(img`.`))"
     export function filterLocations(locations: tiles.Location[], rule: TileRule, map?: tiles.TileMapData): tiles.Location[] {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return locations;
@@ -898,6 +924,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_overlapsSprite
     //% block="$sprite overlaps $locations||in $map"
+    //% help=github:arcade-tile-scanner/docs/overlaps-sprite
     //% sprite.shadow=variables_get
     //% sprite.defl=mySprite
     //% locations.shadow=variables_get
@@ -906,6 +933,7 @@ namespace tileScanner {
     //% map.defl=myTilemap
     //% group=Operations
     //% weight=70
+    //% snippet="tileScanner.overlapsSprite([], sprites.create(img`.`, SpriteKind.Player))"
     export function overlapsSprite(locations: tiles.Location[], sprite: Sprite, map?: tiles.TileMapData): boolean {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return false;
@@ -939,12 +967,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_indexOfLocation
     //% block="$locations index of $toFind"
+    //% help=github:arcade-tile-scanner/docs/index-of-location
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% toFind.shadow=mapgettile
     //% group=Operations
     //% weight=60
     //% blockGap=8
+    //% snippet="tileScanner.indexOfLocation([], tiles.getTileLocation(0, 0))"
     export function indexOfLocation(locations: tiles.Location[], toFind: tiles.Location): number {
         for (let i = 0; i < locations.length; i++) {
             if (locations[i].column === toFind.column && locations[i].row === toFind.row) {
@@ -965,11 +995,13 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_containsLocation
     //% block="$locations contains $toFind"
+    //% help=github:arcade-tile-scanner/docs/contains-location
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% toFind.shadow=mapgettile
     //% group=Operations
     //% weight=50
+    //% snippet="tileScanner.containsLocation([], tiles.getTileLocation(0, 0))"
     export function containsLocation(locations: tiles.Location[], toFind: tiles.Location): boolean {
         return indexOfLocation(locations, toFind) !== -1;
     }
@@ -986,12 +1018,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_calculateMetric
     //% block="$locations calculate $metric||in $map"
+    //% help=github:arcade-tile-scanner/docs/calculate-metric
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% map.shadow=variables_get
     //% map.defl=myTilemap
     //% group=Operations
     //% weight=40
+    //% snippet="tileScanner.calculateMetric([], tileScanner.LocationGroupMetric.PixelWidth)"
     export function calculateMetric(locations: tiles.Location[], metric: LocationGroupMetric, map?: tiles.TileMapData): number {
         if (!map) map = game.currentScene().tileMap.data;
         if (!map) return -1;
@@ -1027,12 +1061,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_joinLocations
     //% block="$operation $a and $b"
+    //% help=github:arcade-tile-scanner/docs/join
     //% a.shadow=variables_get
     //% a.defl=myLocationsA
     //% b.shadow=variables_get
     //% b.defl=myLocationsB
     //% group=Operations
     //% weight=30
+    //% snippet="tileScanner.join(tileScanner.JoinOp.Union, [], [])"
     export function join(operation: JoinOp, a: tiles.Location[], b: tiles.Location[]): tiles.Location[] {
         switch (operation) {
             case JoinOp.Concatenate:
@@ -1055,10 +1091,12 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_deduplicateLocations
     //% block="deduplicate $locations"
+    //% help=github:arcade-tile-scanner/docs/deduplicate
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% group=Operations
     //% weight=20
+    //% snippet="tileScanner.deduplicate([])"
     export function deduplicate(locations: tiles.Location[]): tiles.Location[] {
         const result: tiles.Location[] = [];
         for (const loc of locations) {
@@ -1079,12 +1117,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_sortByDistance
     //% block="$locations sorted by distance from $origin"
+    //% help=github:arcade-tile-scanner/docs/sort-by-distance
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% origin.shadow=mapgettile
     //% group=Operations
     //% weight=10
     //% blockGap=8
+    //% snippet="tileScanner.sortByDistance([], tiles.getTileLocation(0, 0))"
     export function sortByDistance(locations: tiles.Location[], origin: tiles.Location): tiles.Location[] {
         const sorted = locations.slice(0);
         sorted.sort((a, b) => {
@@ -1104,10 +1144,12 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_sortByColumnRow
     //% block="$locations sorted by column then row"
+    //% help=github:arcade-tile-scanner/docs/sort-by-column-row
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% group=Operations
     //% weight=5
+    //% snippet="tileScanner.sortByColumnRow([])"
     export function sortByColumnRow(locations: tiles.Location[]): tiles.Location[] {
         const sorted = locations.slice(0);
         sorted.sort((a, b) => {
@@ -1131,6 +1173,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_createOverlapTester
     //% block="create bbox sprite for $locations with kind $kind||in map $map"
+    //% help=github:arcade-tile-scanner/docs/create-overlap-tester
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
     //% kind.shadow=spritekind
@@ -1138,6 +1181,7 @@ namespace tileScanner {
     //% map.defl="myTilemap"
     //% group=Sprites
     //% weight=0
+    //% snippet="tileScanner.createOverlapTester([], SpriteKind.Player)"
     export function createOverlapTester(locations: tiles.Location[], kind: number, map?: tiles.TileMapData): Sprite {
         let scale = 4;
         if (!map) map = game.currentScene().tileMap.data;
@@ -1165,6 +1209,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_createOutlineSprite
     //% block="create outline sprite for $locations||with color $color thickness $thickness"
+    //% help=github:arcade-tile-scanner/docs/create-outline-sprite
     //% blockSetVariable=myOutlineSprite
     //% locations.shadow=variables_get
     //% locations.defl=myLocations
@@ -1173,6 +1218,7 @@ namespace tileScanner {
     //% color.shadow="colorindexpicker"
     //% group=Sprites
     //% weight=100
+    //% snippet="tileScanner.createOutlineSprite([], 2, 1)"
     export function createOutlineSprite(locations: tiles.Location[], color?: number, thickness?: number): Sprite {
         const scale = game.currentScene().tileMap.scale;
 
@@ -1192,6 +1238,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_updateTiles
     //% block="$outlineSprite update locations to $locations"
+    //% help=github:arcade-tile-scanner/docs/update-tiles
     //% outlineSprite.shadow=variables_get
     //% outlineSprite.defl=myOutlineSprite
     //% locations.shadow=variables_get
@@ -1199,6 +1246,7 @@ namespace tileScanner {
     //% group=Sprites
     //% weight=90
     //% blockGap=8
+    //% snippet="tileScanner.updateTiles(tileScanner.createOutlineSprite([], 2, 1), [])"
     export function updateTiles(outlineSprite: Sprite, locations: tiles.Location[]) {
         assertOutlineSprite(outlineSprite);
         const scale = game.currentScene().tileMap.scale;
@@ -1215,6 +1263,7 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_setOutlineColor
     //% block="$outlineSprite set outline color $color"
+    //% help=github:arcade-tile-scanner/docs/set-outline-color
     //% outlineSprite.shadow=variables_get
     //% outlineSprite.defl=myOutlineSprite
     //% color.defl=2
@@ -1222,6 +1271,7 @@ namespace tileScanner {
     //% group=Sprites
     //% weight=80
     //% blockGap=8
+    //% snippet="tileScanner.setOutlineColor(tileScanner.createOutlineSprite([], 2, 1), 3)"
     export function setOutlineColor(outlineSprite: Sprite, color: number) {
         assertOutlineSprite(outlineSprite);
 
@@ -1237,12 +1287,14 @@ namespace tileScanner {
      */
     //% blockId=tileScanner_setOutlineThickness
     //% block="$outlineSprite set outline thickness $thickness"
+    //% help=github:arcade-tile-scanner/docs/set-outline-thickness
     //% outlineSprite.shadow=variables_get
     //% outlineSprite.defl=myOutlineSprite
     //% thickness.defl=1
     //% group=Sprites
     //% weight=70
     //% blockGap=8
+    //% snippet="tileScanner.setOutlineThickness(tileScanner.createOutlineSprite([], 2, 1), 2)"
     export function setOutlineThickness(outlineSprite: Sprite, thickness: number) {
         assertOutlineSprite(outlineSprite);
 

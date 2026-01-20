@@ -6,7 +6,40 @@
         "outline.ts",
         "overlapTester.ts",
         "api.ts",
-        "main.ts"
+        "main.ts",
+        "docs/scan-in-direction.md",
+        "docs/bfs.md",
+        "docs/get-all-matching-locations.md",
+        "docs/get-adjacent-locations.md",
+        "docs/scan-for-lines.md",
+        "docs/scan-for-groups.md",
+        "docs/matches-rule.md",
+        "docs/tile-is.md",
+        "docs/is-wall.md",
+        "docs/is-inside-map.md",
+        "docs/comparison.md",
+        "docs/borders.md",
+        "docs/borders-sides.md",
+        "docs/side-groups.md",
+        "docs/not.md",
+        "docs/and.md",
+        "docs/or.md",
+        "docs/set-tile-at-locations.md",
+        "docs/set-wall-at-locations.md",
+        "docs/filter-locations.md",
+        "docs/overlaps-sprite.md",
+        "docs/index-of-location.md",
+        "docs/contains-location.md",
+        "docs/calculate-metric.md",
+        "docs/join.md",
+        "docs/deduplicate.md",
+        "docs/sort-by-distance.md",
+        "docs/sort-by-column-row.md",
+        "docs/create-overlap-tester.md",
+        "docs/create-outline-sprite.md",
+        "docs/update-tiles.md",
+        "docs/set-outline-color.md",
+        "docs/set-outline-thickness.md"
     ],
     "supportedTargets": [
         "arcade"
@@ -15,6 +48,5 @@
         "device": "*"
     },
     "testDependencies": {},
-    "testFiles": [
-    ]
+    "testFiles": []
 }
