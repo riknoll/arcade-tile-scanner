@@ -14,7 +14,7 @@ This block will start at the given location and move in the specified direction 
 
 This is super useful for things like motion-activated traps where you want to create a motion trigger for when the player passes in front of it.
 
-For example, this project uses this block to create stalagtites that fall when the player goes underneath them
+For example, this project uses this block to create stalagtites that fall when the player goes underneath them:
 
 https://makecode.com/_YqjAyPLpH2LW
 
