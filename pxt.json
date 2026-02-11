@@ -2,6 +2,7 @@
     "name": "arcade-tile-scanner",
     "version": "0.0.0",
     "files": [
+        "README.md",
         "rules.ts",
         "outline.ts",
         "overlapTester.ts",
